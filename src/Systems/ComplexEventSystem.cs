@@ -10,10 +10,7 @@ using Localization;
 namespace Systems
 {
     public class ComplexEventSystem : Node, IUpdatable
-    {   
-        public string Id { get; set; }
-        public string TitleKey { get; set; }
-        public string Description { get; set; }
+    {
         private List<ComplexGameEvent> allEvents;
         private List<ComplexGameEvent> activeEvents;
         private GameManager gameManager;
@@ -164,9 +161,18 @@ namespace Systems
                         node.Stats.CulturalDevelopment = Math.Clamp(node.Stats.CulturalDevelopment + value, 0f, 100f);
                     }
                     break;
+                // Add more cases as needed for other stats
                 default:
                     GD.PrintErr($"Unknown effect stat: {statName}");
                     break;
+            }
+
+            // Example: Trigger environmental effects based on certain stats
+            if (statName.ToLower() == "economicprosperity" && value > 5)
+            {
+                // Example: Start raining if economic prosperity increases significantly
+                var environmentManager = gameManager.GetEnvironmentManager();
+                environmentManager.ToggleRain(true);
             }
         }
 
@@ -181,7 +187,7 @@ namespace Systems
                 .Replace("{nodeName}", nameDatabase.GetRandomNodeName())
                 .Replace("{npcFirstName}", nameDatabase.GetRandomNPCName().Split(' ')[0])
                 .Replace("{npcLastName}", nameDatabase.GetRandomNPCName().Split(' ')[1])
-                .Replace("{cultureName}", nameDatabase.GetRandomElement(nameDatabase.Data.culture_names));
+                .Replace("{cultureName}", nameDatabase.GetRandomElement(gameManager.NameDatabase.Data.culture_names));
         }
     }
 

@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=2]
+
+[node name="RainEffect" type="CPUParticles"]
+
+process_material = ExtResource(1)
+emission_shape = CPUParticles.EmissionShape.Box
+amount = 5000
+lifetime = 4.0
+speed_scale = 1.0
+
+[sub_resource type="ParticlesMaterial" id=1]
+# Reference to Rain.particle
+FilePath = "res://src/Graphics/Particles/Rain.particle"

@@ -1,0 +1,37 @@
+{
+  "candidates": [
+    {
+      "name": "Candidate A",
+      "election_type": "Mayor",
+      "platform": {
+        "EconomicProsperity": 60,
+        "EnvironmentalHealth": 40
+      }
+    },
+    {
+      "name": "Candidate B",
+      "election_type": "Mayor",
+      "platform": {
+        "EconomicProsperity": 45,
+        "EnvironmentalHealth": 70
+      }
+    },
+    {
+      "name": "President X",
+      "election_type": "President",
+      "platform": {
+        "EconomicProsperity": 65,
+        "EnvironmentalHealth": 60
+      }
+    },
+    {
+      "name": "President Y",
+      "election_type": "President",
+      "platform": {
+        "EconomicProsperity": 45,
+        "EnvironmentalHealth": 85
+      }
+    }
+ 
+  ]
+}
