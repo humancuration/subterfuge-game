@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=2]
+
+[node name="EnergyAura" type="MeshInstance"]
+
+mesh = Null # Assign a suitable mesh (e.g., a sphere)
+material_override = ExtResource(1)
+
+[sub_resource type="ShaderMaterial" id=1]
+shader = ExtResource(2)
+
+[sub_resource type="Shader" id=2]
+# Reference to EnergyAura.shader
+FilePath = "res://src/Graphics/Shaders/EnergyAura.shader"

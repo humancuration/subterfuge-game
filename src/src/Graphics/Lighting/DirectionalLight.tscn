@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=2]
+
+[node name="DirectionalLight" type="DirectionalLight"]
+
+[resource]
+shadow_enabled = true
+shadow_mode = DirectionalLight.ShadowModeEnum.VSM
+shadow_atlas_size = 2048
