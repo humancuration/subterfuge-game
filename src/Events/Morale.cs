@@ -3,11 +3,11 @@ private void ApplyEffect(string statName, float value)
     switch (statName.ToLower())
     {
         case "morale":
-            foreach (var node in gameManager.Nodes)
+            foreach (var waypoint in gameManager.Waypoints)
             {
-                node.Stats.Morale = Math.Clamp(node.Stats.Morale + value, 0f, 100f);
+                waypoint.Stats.Morale = Math.Clamp(waypoint.Stats.Morale + value, 0f, 100f);
                 // Potentially trigger a new event if morale crosses a threshold
-                if (node.Stats.Morale > 80f)
+                if (waypoint.Stats.Morale > 80f)
                 {
                     // Example: Trigger a celebration event
                     var celebrationEvent = allEvents.Find(e => e.Id == "event_celebration");

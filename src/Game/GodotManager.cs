@@ -26,6 +26,15 @@ public class GodotManager : Node
     // Input handling
     private Dictionary<string, Action> inputActions;
 
+    // Achievements
+    private List<Achievement> achievements = new List<Achievement>();
+
+    // Visualizer
+    private Visualizer visualizer;
+
+    // Leaderboard
+    private Leaderboard leaderboard;
+
     public override void _Ready()
     {
         Instance = this;
@@ -54,6 +63,16 @@ public class GodotManager : Node
         dialogueManager.OnDialogueStarted += OnDialogueStarted;
         dialogueManager.OnOptionSelected += OnDialogueOptionSelected;
         dialogueManager.OnDialogueEnded += OnDialogueEnded;
+
+        // Initialize achievements and leaderboards
+        InitializeAchievements();
+        InitializeLeaderboards();
+
+        // Initialize visualizer
+        visualizer = new Visualizer(mainUI); // Pass the main UI to the visualizer
+
+        // Initialize leaderboard
+        leaderboard = new Leaderboard();
     }
 
     private void InitializeUI()
@@ -140,12 +159,27 @@ public class GodotManager : Node
     {
         // Update UI elements based on game state
         UpdateUIElements();
+
+        // Update visualizations and graphs
+        visualizer.UpdateVisualizations(gameManager); // Update visualizations
+
+        // Check for achievements
+        CheckAchievements();
+
+        // Update leaderboards
+        UpdateLeaderboards();
     }
 
     private void UpdateUIElements()
     {
         // Update various UI elements based on current game state
         // For example, update resource displays, quest logs, etc.
+    }
+
+    private void UpdateVisualizations()
+    {
+        // Implement logic to update visualizations and graphs based on game stats
+        // Example: Update a bar graph showing resource amounts
     }
 
     private void TogglePause()
@@ -173,19 +207,59 @@ public class GodotManager : Node
         return new List<NPC>();
     }
 
+    private void InitializeAchievements()
+    {
+        achievements.Add(new Achievement("Population Boom", "Reach a population of 1000", gm => gm.Nodes.Exists(n => n.Population.Size >= 1000)));
+        achievements.Add(new Achievement("Technologically Advanced", "Reach a technological advancement level of 50", gm => gm.Nodes.Exists(n => n.Stats.TechnologicalAdvancement >= 50)));
+        // Add more achievements here
+    }
+
+    private void InitializeLeaderboards()
+    {
+        // Implement logic to initialize leaderboards
+        // Example: Load from a file or create a new leaderboard
+        leaderboard = new Leaderboard();
+    }
+
+    private void CheckAchievements()
+    {
+        foreach (var achievement in achievements)
+        {
+            achievement.CheckUnlock(gameManager);
+        }
+    }
+
+    private void UpdateLeaderboards()
+    {
+        // Implement logic to update leaderboards based on player stats
+        // Example: Sort the list of player stats by a specific stat
+        // Example: Display the top 10 players on the leaderboard UI
+        leaderboard.AddPlayerStats(new PlayerStats(gameManager.PlayerCharacter.Name) // Add player stats to the leaderboard
+        {
+            Morale = gameManager.Nodes[0].Stats.Morale,
+            ResourceAvailability = gameManager.Nodes[0].Stats.ResourceAvailability,
+            PopulationGrowth = gameManager.Nodes[0].Stats.PopulationGrowth,
+            TechnologicalAdvancement = gameManager.Nodes[0].Stats.TechnologicalAdvancement,
+            SocialHappiness = gameManager.Nodes[0].Stats.SocialHappiness
+        });
+        leaderboard.UpdateLeaderboards(gameManager);
+        // Display the leaderboard UI
+        DisplayLeaderboard();
+    }
+
+    private void DisplayLeaderboard()
+    {
+        // Implement logic to display the leaderboard UI
+        // Example: Update a listbox with the leaderboard data
+        // Example: Create a new UI element to display the leaderboard
+        // Example: Use a `Label` to display the leaderboard
+        // Example: Use a `Tree` to display the leaderboard
+        // Example: Use a `Grid` to display the leaderboard
+    }
+
     public override void _ExitTree()
     {
         // Stop background processing
         backgroundProcessor.Stop();
     }
 }
-
-// GodotManager:
-// Implemented a singleton pattern for easy access from other scripts.
-// Added a main UI in addition to the dialogue UI.
-// Implemented a flexible input handling system using a dictionary of actions.
-// Added methods to handle dialogue events (start, option selected, end).
-// Included a method to update UI elements based on game state changes.
-// Added a pause toggle functionality.
-// Improved the initialization process by separating game, UI, and input setup.
-// These versions provide a solid foundation for your game, integrating all the systems mentioned in the previous files and adding some useful features. Remember to implement the specific logic for each system (AI, Economy, Health, Technology, etc.) and create the necessary UI scenes in Godot to match the script references.

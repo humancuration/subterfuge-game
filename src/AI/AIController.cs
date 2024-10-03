@@ -4,28 +4,28 @@ using System.Collections.Generic;
 
 public class AIController : Node
 {
-    private Node currentNode;
-    private List<Node> visitedNodes = new List<Node>();
+    private Waypoint currentWaypoint;
+    private List<Waypoint> visitedWaypoints = new List<Waypoint>();
 
-    public void SetStartNode(Node startNode)
+    public void SetStartWaypoint(Waypoint startWaypoint)
     {
-        currentNode = startNode;
-        visitedNodes.Add(currentNode);
+        currentWaypoint = startWaypoint;
+        visitedWaypoints.Add(currentWaypoint);
     }
 
-    public void MoveToNextNode()
+    public void MoveToNextWaypoint()
     {
-        if (currentNode.ConnectedNodes.Count == 0)
+        if (currentWaypoint.ConnectedWaypoints.Count == 0)
             return;
 
         // Simple random movement
         Random rnd = new Random();
-        Node nextNode = currentNode.ConnectedNodes[rnd.Next(currentNode.ConnectedNodes.Count)];
-        currentNode = nextNode;
+        Waypoint nextWaypoint = currentWaypoint.ConnectedWaypoints[rnd.Next(currentWaypoint.ConnectedWaypoints.Count)];
+        currentWaypoint = nextWaypoint;
 
-        if (!visitedNodes.Contains(currentNode))
-            visitedNodes.Add(currentNode);
+        if (!visitedWaypoints.Contains(currentWaypoint))
+            visitedWaypoints.Add(currentWaypoint);
 
-        GD.Print($"AI moved to {currentNode.NodeName}");
+        GD.Print($"AI moved to {currentWaypoint.WaypointName}");
     }
 }

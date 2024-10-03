@@ -11,7 +11,7 @@
       "Solaris", "Quantum", "Nexus", "Flux", "Cipher", "Vortex", "Nebula", "Zenith", "Pulse", "Helix"
     ]
   },
-  "node_names": [
+  "waypoint_names": [
     "Neo Tokyo", "Solara Prime", "Zephyr Haven", "Quantum Valley", "Eco Nexus", "Cybertopia", "Verdant Reach", "Neon Harbor", "Fusion City", "Biolume Bay",
     "Aether Heights", "Chromatic Falls", "Synthwave Oasis", "Gaia's Cradle", "Neuron Hub", "Solarpunk Sanctuary", "Biome Bastion", "Nano Grove", "Eco Echo", "Lumina Enclave",
     "Retro Ridge", "Vapor Vista", "Pixel Plains", "Analog Acres", "Glitch Gulch", "Synth Springs", "Bit Bay", "Data Dunes", "Circuit Cove", "Mainframe Meadows"

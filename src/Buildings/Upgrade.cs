@@ -5,7 +5,7 @@ public abstract class Building : Node
     public int Cost { get; set; }
     public int UpgradeLevel { get; private set; } = 0;
 
-    public abstract void Activate(Node ownerNode);
+    public abstract void Activate(Waypoint ownerWaypoint);
 
     public void UpgradeBuilding()
     {

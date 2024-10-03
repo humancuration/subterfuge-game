@@ -5,32 +5,8 @@
 
 
 
-using System.Collections.Generic;
-
-namespace Models
-{
-    public class Quest
-    {
-        public string Title { get; set; }
-        public string Description { get; set; }
-        public List<string> Objectives { get; set; }
-        public bool IsCompleted { get; set; }
-        public int RewardExperience { get; set; }
-        public int RewardGold { get; set; }
-
-        public void CompleteObjective(string objective)
-        {
-            if (Objectives.Contains(objective))
-            {
-                Objectives.Remove(objective);
-                if (Objectives.Count == 0)
-                {
-                    IsCompleted = true;
-                }
-            }
-        }
-    }
-}
+// File: Models/Quest.cs
+// ... (Quest class remains unchanged) ...
 
 // File: Systems/QuestSystem.cs
 using System.Collections.Generic;

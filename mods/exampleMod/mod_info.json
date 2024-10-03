@@ -1,0 +1,8 @@
+{
+  "Name": "CoolMod",
+  "Version": "1.0.0",
+  "Author": "ModderSupreme",
+  "Description": "This mod adds cool new features to the game!",
+  "MainAssembly": "CoolMod.dll",
+  "Dependencies": ["OtherMod"]
+}
