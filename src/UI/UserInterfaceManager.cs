@@ -4,7 +4,7 @@ using NLog;
 
 public class UserInterfaceManager : Control
 {
-    private NLog.Logger logger = LogManager.GetCurrentClassLogger();
+    private readonly NLog.Logger logger = LogManager.GetCurrentClassLogger();
     private GameManager gameManager;
 
     // UI elements

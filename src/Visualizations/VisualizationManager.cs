@@ -5,7 +5,7 @@ using NLog;
 
 public class VisualizationManager : Node
 {
-    private NLog.Logger logger = LogManager.GetCurrentClassLogger();
+    private readonly NLog.Logger logger = LogManager.GetCurrentClassLogger();
     private GameManager gameManager;
 
     // Visualization parameters
@@ -15,7 +15,7 @@ public class VisualizationManager : Node
     private float nodeSize;
     private float edgeWidth;
 
-    // Nodes and edges for visualization
+    // Lists to keep track of visual elements
     private List<MeshInstance> visualNodes = new List<MeshInstance>();
     private List<Line2D> visualEdges = new List<Line2D>();
 
@@ -24,6 +24,7 @@ public class VisualizationManager : Node
         gameManager = GetNode<GameManager>("/root/GameManager");
         LoadConfig();
         InitializeVisualization();
+        SubscribeToEvents();
     }
 
     private void LoadConfig()
@@ -38,10 +39,10 @@ public class VisualizationManager : Node
 
     private void InitializeVisualization()
     {
-        // Set background color
+        // Set the background color of the viewport
         GetViewport().SetClearColor(backgroundColor);
         
-        // Iterate through processed data to create visual nodes and edges
+        // Process data and create visual nodes and edges
         var processedData = gameManager.DataProcessor.ProcessData(gameManager.RawData);
         var species = processedData.Keys.ToList();
 
@@ -64,26 +65,32 @@ public class VisualizationManager : Node
 
     private void CreateVisualNode(string species, Vector3 position)
     {
-        MeshInstance node = new MeshInstance();
-        node.Mesh = new SphereMesh
+        MeshInstance node = new MeshInstance
         {
-            Radius = nodeSize
+            Name = species, // Assign species name for easy identification
+            Mesh = new SphereMesh
+            {
+                Radius = nodeSize
+            },
+            MaterialOverride = new SpatialMaterial
+            {
+                AlbedoColor = nodeColor
+            },
+            Translation = position
         };
-        node.MaterialOverride = new SpatialMaterial
-        {
-            AlbedoColor = nodeColor
-        };
-        node.Translation = position;
         AddChild(node);
         visualNodes.Add(node);
     }
 
     private void CreateVisualEdge(string sp1, string sp2, double distance)
     {
-        // Create a Line2D for simplicity; consider using 3D lines for more complexity
-        Line2D edge = new Line2D();
-        edge.DefaultColor = edgeColor;
-        edge.Width = edgeWidth;
+        // Create a Line2D for connecting species nodes
+        Line2D edge = new Line2D
+        {
+            Name = $"{sp1}_to_{sp2}",
+            DefaultColor = edgeColor,
+            Width = edgeWidth
+        };
 
         Vector3 pos1 = gameManager.VisualPositions[sp1];
         Vector3 pos2 = gameManager.VisualPositions[sp2];
@@ -109,10 +116,21 @@ public class VisualizationManager : Node
         }
         visualEdges.Clear();
 
-        // Re-initialize visualization
+        // Re-initialize visualization with updated data
         InitializeVisualization();
     }
 
-    // Optional: Handle dynamic updates based on game events
-    // ...
+    private void SubscribeToEvents()
+    {
+        // Subscribe to events that may require visualization updates
+        EventManager.Instance.Subscribe("UpdateVisualization", OnUpdateVisualization);
+        // Add more event subscriptions as needed
+    }
+
+    private void OnUpdateVisualization(object data)
+    {
+        UpdateVisualization();
+    }
+
+    // Additional methods for dynamic updates can be added here
 }
