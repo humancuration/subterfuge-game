@@ -46,6 +46,20 @@ namespace Systems
             Dialogue dialogue = ExampleDialogue.CreateConversation();
             Godot.GodotManager.Instance.GetGameManager().GetDialogueManager().StartDialogue(npc, dialogue);
         }
+        
+            // Subscribe to weather changes
+        public void SubscribeToWeather(EnvironmentManager environmentManager)
+        {
+            environmentManager.OnWeatherChanged += HandleWeatherChange;
+        }
+
+        private void HandleWeatherChange(WeatherCondition newWeather)
+        {
+            foreach (var npc in npcs)
+            {
+                npc.ReactToWeather(newWeather);
+            }
+        }
     }
 }
 

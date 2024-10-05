@@ -19,6 +19,36 @@ public class NPCController : Node
         currentState?.Execute(this, deltaTime);
     }
 
+        public void ChangeState(INPCState newState)
+    {
+        currentState?.Exit(this);
+        currentState = newState;
+        currentState?.Enter(this);
+    }
+
+    // New Method to React to Weather Events
+    public void ReactToWeather(WeatherCondition weather)
+    {
+        switch (weather)
+        {
+            case WeatherCondition.Storm:
+            case WeatherCondition.Snow:
+                ChangeState(new DefensiveState());
+                break;
+            case WeatherCondition.Rain:
+                // Maybe seek shelter or adjust morale
+                CurrentNode.Stats.Morale -= 2f;
+                break;
+            case WeatherCondition.Heatwave:
+                CurrentNode.Stats.HealthRisk += 5f;
+                break;
+            // Handle other weather conditions as needed
+            default:
+                ChangeState(new IdleState());
+                break;
+        }
+    }
+
     public void TransitionToState(INPCState newState)
     {
         currentState?.Exit(this);

@@ -1,14 +1,13 @@
-using Godot;
-using System;
-
 public class EnvironmentManager : Node
 {
-    public enum WeatherType
+    public enum WeatherCondition
     {
-        Sunny,
-        Rainy,
-        Snowy,
-        // Add more weather types as needed
+        Clear,
+        Rain,
+        Storm,
+        Snow,
+        Fog,
+        Heatwave
     }
 
     public enum DayPhase
@@ -19,27 +18,37 @@ public class EnvironmentManager : Node
         Night
     }
 
-    public WeatherType CurrentWeather { get; private set; }
+    public WeatherCondition CurrentWeather { get; private set; }
     public DayPhase CurrentDayPhase { get; private set; }
 
-    private float weatherDuration = 0f;
+    private float weatherTimer = 0f;
+    private float weatherChangeInterval = 60f; // Change weather every 60 seconds
     private float dayPhaseDuration = 0f;
 
     private GIProbe giProbe;
     private CPUParticles leavesEffect;
     private CPUParticles rainEffect;
-    private CPUParticles snowEffect; // Added for snowy weather
+    private CPUParticles snowEffect;
+
+    public event Action<WeatherCondition> OnWeatherChanged;
 
     public override void _Ready()
     {
         InitializeGIProbe();
         InitializeParticleEffects();
-        
+
         // Set initial weather and day phase
-        CurrentWeather = WeatherType.Sunny;
+        CurrentWeather = WeatherCondition.Clear;
         CurrentDayPhase = DayPhase.Morning;
         SetWeatherDuration();
         SetDayPhaseDuration();
+    }
+
+    public override void _Process(float delta)
+    {
+        UpdateWeather(delta);
+        UpdateDayPhase(delta);
+        UpdateEnvironmentEffects();
     }
 
     private void InitializeGIProbe()
@@ -69,18 +78,12 @@ public class EnvironmentManager : Node
         snowEffect.Emitting = false;
     }
 
-    public void Update(float deltaTime)
-    {
-        UpdateWeather(deltaTime);
-        UpdateDayPhase(deltaTime);
-        UpdateEnvironmentEffects();
-    }
-
     private void UpdateWeather(float deltaTime)
     {
-        weatherDuration -= deltaTime;
-        if (weatherDuration <= 0f)
+        weatherTimer += deltaTime;
+        if (weatherTimer >= weatherChangeInterval)
         {
+            weatherTimer = 0f;
             ChangeWeather();
         }
     }
@@ -96,22 +99,29 @@ public class EnvironmentManager : Node
 
     private void ChangeWeather()
     {
-        WeatherType newWeather = (WeatherType)new Random().Next(Enum.GetValues(typeof(WeatherType)).Length);
+        WeatherCondition newWeather = GetRandomWeatherCondition();
         CurrentWeather = newWeather;
+        OnWeatherChanged?.Invoke(CurrentWeather);
+        TriggerWeatherEvent(CurrentWeather);
         SetWeatherDuration();
-        UpdateEnvironmentEffects();
+    }
+
+    private WeatherCondition GetRandomWeatherCondition()
+    {
+        Array values = Enum.GetValues(typeof(WeatherCondition));
+        Random random = new Random();
+        return (WeatherCondition)values.GetValue(random.Next(values.Length));
+    }
+
+    private void SetWeatherDuration()
+    {
+        weatherChangeInterval = new Random().Next(300, 900); // Random duration between 5-15 minutes
     }
 
     private void AdvanceDayPhase()
     {
         CurrentDayPhase = (DayPhase)(((int)CurrentDayPhase + 1) % Enum.GetValues(typeof(DayPhase)).Length);
         SetDayPhaseDuration();
-        UpdateEnvironmentEffects();
-    }
-
-    private void SetWeatherDuration()
-    {
-        weatherDuration = new Random().Next(300, 900); // Random duration between 5-15 minutes
     }
 
     private void SetDayPhaseDuration()
@@ -122,9 +132,9 @@ public class EnvironmentManager : Node
     private void UpdateEnvironmentEffects()
     {
         // Update particle effects based on current weather
-        leavesEffect.Emitting = CurrentWeather == WeatherType.Sunny;
-        rainEffect.Emitting = CurrentWeather == WeatherType.Rainy;
-        snowEffect.Emitting = CurrentWeather == WeatherType.Snowy;
+        leavesEffect.Emitting = CurrentWeather == WeatherCondition.Clear;
+        rainEffect.Emitting = CurrentWeather == WeatherCondition.Rain;
+        snowEffect.Emitting = CurrentWeather == WeatherCondition.Snow;
 
         // Update lighting based on day phase
         UpdateLighting();
@@ -132,9 +142,6 @@ public class EnvironmentManager : Node
 
     private void UpdateLighting()
     {
-        // Implement logic to adjust lighting based on CurrentDayPhase
-        // This could involve changing the intensity and color of your main light source
-        // For example:
         DirectionalLight sunLight = GetNode<DirectionalLight>("SunLight");
         switch (CurrentDayPhase)
         {
@@ -156,42 +163,28 @@ public class EnvironmentManager : Node
                 break;
         }
 
-        // You might want to update GIProbe for major lighting changes
         if (CurrentDayPhase == DayPhase.Night || CurrentDayPhase == DayPhase.Morning)
         {
             giProbe.Bake();
         }
     }
 
-    public void ApplyWeatherEffects(Node node)
+    private void TriggerWeatherEvent(WeatherCondition weather)
     {
-        // Implement logic to apply weather effects to a node
-        // Example: Modify node stats or population behavior based on the current weather
-        switch (CurrentWeather)
+        switch (weather)
         {
-            case WeatherType.Rainy:
-                // Slow down movement, increase resource generation, etc.
+            case WeatherCondition.Rain:
+                EventManager.Instance.Emit("WeatherEvent", new WeatherEvent("Heavy Rain", ImpactType.Environmental, -5f));
                 break;
-            case WeatherType.Snowy:
-                // Severely slow down movement, decrease resource generation, etc.
+            case WeatherCondition.Storm:
+                EventManager.Instance.Emit("WeatherEvent", new WeatherEvent("Storm", ImpactType.Environmental, -10f));
                 break;
-            // Add more cases as needed
-        }
-    }
-
-    public void ApplyDayPhaseEffects(Node node)
-    {
-        // Implement logic to apply day phase effects to a node
-        // Example: Adjust NPC routines, events, or dialogue options based on the current day phase
-        switch (CurrentDayPhase)
-        {
-            case DayPhase.Night:
-                // Reduce NPC activity, increase stealth effectiveness, etc.
+            case WeatherCondition.Snow:
+                EventManager.Instance.Emit("WeatherEvent", new WeatherEvent("Snowfall", ImpactType.Environmental, -3f));
                 break;
-            case DayPhase.Morning:
-                // Increase productivity, trigger "start of day" events, etc.
+            default:
+                EventManager.Instance.Emit("WeatherEvent", new WeatherEvent("Clear Skies", ImpactType.Environmental, 5f));
                 break;
-            // Add more cases as needed
         }
     }
 }

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using NLog;
 
-public class EventManager
+public static class EventManager
 {
     private static EventManager instance;
     private NLog.Logger logger = LogManager.GetCurrentClassLogger();
@@ -45,4 +45,59 @@ public class EventManager
             listeners[eventType].Remove(listener);
         }
     }
+}
+
+public abstract class GameEvent
+{
+    public string EventName { get; private set; }
+    public ImpactType ImpactType { get; private set; }
+    public float Magnitude { get; private set; }
+
+    protected GameEvent(string name, ImpactType impactType, float magnitude)
+    {
+        EventName = name;
+        ImpactType = impactType;
+        Magnitude = magnitude;
+    }
+
+    public abstract void ApplyEffect(GameManager gameManager);
+}
+
+public class WeatherEvent : GameEvent
+{
+    public WeatherEvent(string name, ImpactType impactType, float magnitude)
+        : base(name, impactType, magnitude)
+    {
+    }
+
+    public override void ApplyEffect(GameManager gameManager)
+    {
+        foreach (var node in gameManager.Nodes)
+        {
+            node.Stats.EnvironmentalHealth += Magnitude;
+        }
+
+        foreach (var npc in gameManager.NPCs)
+        {
+            if (gameManager.EnvironmentManager.CurrentWeather == WeatherCondition.Storm || 
+                gameManager.EnvironmentManager.CurrentWeather == WeatherCondition.Snow)
+            {
+                npc.ChangeState(new DefensiveState());
+            }
+            else
+            {
+                npc.ChangeState(new IdleState());
+            }
+        }
+
+        GD.Print($"Weather Event Triggered: {EventName} with impact {Magnitude}");
+    }
+}
+
+public enum ImpactType
+{
+    Environmental,
+    Economic,
+    Social,
+    Health
 }
