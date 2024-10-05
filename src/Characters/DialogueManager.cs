@@ -53,6 +53,42 @@ namespace Systems
             }
         }
 
+        public void SelectOption(int optionIndex)
+        {
+            if (isDialogueActive && dialogueQueue.Count > 0)
+            {
+                var currentDialogue = dialogueQueue.Dequeue();
+                if (optionIndex < currentDialogue.Options.Count)
+                {
+                    var selectedOption = currentDialogue.Options[optionIndex];
+                    // Modify reputation based on dialogue choice
+                    if (selectedOption.ReputationChange != 0)
+                    {
+                        gameManager.GetReputationSystem().ModifyReputation(currentNPC, selectedOption.ReputationChange);
+                    }
+                    selectedOption.OnSelect?.Invoke(currentNPC, gameManager);
+                    OnOptionSelected?.Invoke(selectedOption);
+                    DisplayNextDialogue();
+                }
+            }
+        }
+
+        public class DialogueOption
+        {
+            public string OptionText { get; private set; }
+            public Action<NPC, GameManager> OnSelect { get; private set; }
+    
+            // New Property
+            public float ReputationChange { get; private set; }
+
+            public DialogueOption(string text, Action<NPC, GameManager> action, float reputationChange = 0)
+            {
+                OptionText = text;
+                OnSelect = action;
+                ReputationChange = reputationChange;
+            }
+        }
+
         private void DisplayNextDialogue()
         {
             if (dialogueQueue.Count == 0)

@@ -15,23 +15,24 @@ namespace Systems
 
         public AISystem(List<NPC> npcList)
         {
-            npcs = npcList;
+            npcs = new List<NPCController>();
+            foreach (var npc in npcList)
+            {
+                var controller = new NPCController(npc.Name, new AIController());
+                npcs.Add(controller);
+            }
             rand = new Random();
         }
-
+        
         public void Update(float deltaTime)
         {
-            foreach (var npc in npcs)
+            foreach (var npcController in npcs)
             {
-                npc.Update(deltaTime);
-
-                // Example condition to start a dialogue
-                if (ShouldStartDialogue(npc))
-                {
-                    StartDialogue(npc);
-                }
+                npcController.Update(deltaTime);
+                npcController.DecideNextAction();
             }
         }
+        
 
         private bool ShouldStartDialogue(NPC npc)
         {

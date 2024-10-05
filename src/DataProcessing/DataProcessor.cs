@@ -49,6 +49,26 @@ public class DataProcessor
         return distanceMatrix;
     }
 
+    // ... existing code ...
+    public class NodeStats
+    {
+    // ... existing stats ...
+        public float MedicalResources { get; set; }
+
+    // New Stat
+        public Dictionary<string, float> Reputation { get; set; }
+
+        public NodeStats()
+        {
+            Reputation = new Dictionary<string, float>
+            {
+                { "Player", 50f } // Initialize with neutral reputation
+            };
+        }
+
+    // ... existing methods ...
+    }
+
     private List<Vector3> GenerateRandomPositions(int count)
     {
         var rand = new Random();

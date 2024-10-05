@@ -8,13 +8,14 @@ public class NPC : Entity, IUpdatable
 
     // Traits
     public List<ITrait> Traits { get; private set; }
-
+    public float ReputationWithPlayer { get; set; }
     // Constructors
     public NPC(int id, string name, Node startingNode) : base(id)
     {
         Name = name;
         CurrentNode = startingNode;
         Traits = new List<ITrait>();
+        ReputationWithPlayer = 50f; // Neutral reputation
     }
 
     // Update method for processing NPC logic
