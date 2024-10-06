@@ -6,6 +6,7 @@ using System.Collections.Generic;
 public class EventManager : Node
 {
     private List<Action> events = new List<Action>();
+    private AccessibilityManager accessibilityManager;
 
     public override void _Ready()
     {
@@ -13,6 +14,7 @@ public class EventManager : Node
         events.Add(EventTreasure);
         events.Add(EventAmbush);
         events.Add(EventFindAlly);
+        accessibilityManager = GetNode<AccessibilityManager>("/root/AccessibilityManager");
     }
 
     public void TriggerRandomEvent()
@@ -20,6 +22,18 @@ public class EventManager : Node
         Random rnd = new Random();
         int index = rnd.Next(events.Count);
         events[index].Invoke();
+    }
+
+    public void TriggerEvent(string eventId)
+    {
+        string description = accessibilityManager.GetEventDescription(eventId);
+        DisplayEventToPlayer(description);
+        // Process event effects
+    }
+
+    private void DisplayEventToPlayer(string description)
+    {
+        // Logic to show event description to player
     }
 
     private void EventTreasure()

@@ -6,7 +6,7 @@ public abstract class Building : Node
     public string BuildingName { get; set; }
     public int Cost { get; set; }
 
-    public abstract void Activate(Waypoint ownerWaypoint);
+    public abstract void Activate(City ownerCity);
 }
 
 // File: src/Buildings/Farm.cs
@@ -18,7 +18,7 @@ public class Farm : Building
         Cost = 100;
     }
 
-    public override void Activate(Waypoint ownerWaypoint)
+    public override void Activate(City ownerCity)
     {
         // Example: Increase food resources
         var gameState = GetNode<GameState>("../GameState");

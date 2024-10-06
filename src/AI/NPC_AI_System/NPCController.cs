@@ -19,7 +19,7 @@ public class NPCController : Node
         currentState?.Execute(this, deltaTime);
     }
 
-        public void ChangeState(INPCState newState)
+    public void ChangeState(INPCState newState)
     {
         currentState?.Exit(this);
         currentState = newState;
@@ -37,10 +37,10 @@ public class NPCController : Node
                 break;
             case WeatherCondition.Rain:
                 // Maybe seek shelter or adjust morale
-                CurrentNode.Stats.Morale -= 2f;
+                CurrentCity.Stats.Morale -= 2f;
                 break;
             case WeatherCondition.Heatwave:
-                CurrentNode.Stats.HealthRisk += 5f;
+                CurrentCity.Stats.HealthRisk += 5f;
                 break;
             // Handle other weather conditions as needed
             default:
@@ -74,6 +74,33 @@ public class NPCController : Node
         if (worldEvent.EventName == "Rebellion Sparked")
         {
             TransitionToState(new DefensiveState());
+        }
+    }
+
+    public float CorporateAlignment { get; set; }
+    public float PublicAlignment { get; set; }
+
+    public void DecideResearchFocus(ResearchFundingSystem fundingSystem)
+    {
+        float totalFunding = fundingSystem.PublicFunding + fundingSystem.CorporateFunding;
+        float publicRatio = fundingSystem.PublicFunding / totalFunding;
+        float corporateRatio = fundingSystem.CorporateFunding / totalFunding;
+
+        // NPC's decision is influenced by both their alignment and the funding ratio
+        float publicTendency = (PublicAlignment + publicRatio) / 2;
+        float corporateTendency = (CorporateAlignment + corporateRatio) / 2;
+
+        if (publicTendency > corporateTendency)
+        {
+            // Focus on public-benefit research
+            GD.Print($"{Name} focuses on public-benefit research");
+            GameState.Instance.PublicResearchProgress += 1;
+        }
+        else
+        {
+            // Focus on corporate-benefit research
+            GD.Print($"{Name} focuses on corporate-benefit research");
+            GameState.Instance.CorporateResearchProgress += 1;
         }
     }
 }

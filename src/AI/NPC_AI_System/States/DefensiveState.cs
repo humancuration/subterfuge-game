@@ -10,11 +10,11 @@ public class DefensiveState : INPCState
     public void Execute(NPCController npc, float deltaTime)
     {
         // Defensive behavior logic during extreme weather
-        // Example: Move to designated shelter node
-        if (npc.CurrentNode.Name != "Shelter")
+        // Example: Move to designated shelter city
+        if (npc.CurrentCity.Name != "Shelter")
         {
-            Node shelterNode = npc.GameManager.FindShelter();
-            npc.MoveToNode(shelterNode);
+            City shelterCity = npc.GameManager.FindShelter();
+            npc.MoveToCity(shelterCity);
             GD.Print($"{npc.Name} is seeking shelter...");
         }
     }
