@@ -1,7 +1,6 @@
 #pragma once
 #include <memory>
-#include <vector>
-#include "../NPCController.hpp"
+#include "../NPCSystem/NPCController.hpp"
 
 class BehaviorNode {
 public:
