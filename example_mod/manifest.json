@@ -1,0 +1,15 @@
+{
+    "id": "my_cool_mod",
+    "name": "My Cool Mod",
+    "version": "1.0.0",
+    "author": "Cool Developer",
+    "description": "This mod adds cool stuff!",
+    "required_game_version": "1.0.0",
+    "dependencies": [],
+    "incompatible_with": [],
+    "data_files": [
+        "events.json",
+        "candidates.json",
+        "localizations/en.json"
+    ]
+} 

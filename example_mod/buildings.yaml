@@ -1,0 +1,8 @@
+# Buildings configuration
+buildings:
+  eco_generator:
+    name: Eco Power Generator
+    description: >
+      A sustainable power generator that produces clean energy.
+      Converts renewable resources into power with minimal environmental impact.
+    # More complex configuration... 

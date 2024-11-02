@@ -1,0 +1,16 @@
+# Eco-friendly power generation
+[[buildings]]
+id = "eco_generator"
+name = "Eco Power Generator"
+description = """
+A sustainable power generator that produces clean energy.
+Converts renewable resources into power with minimal environmental impact.
+"""
+
+[buildings.cost]
+wood = 50
+metal = 30
+
+[buildings.effects]
+power_output = 10
+environmental_impact = -5 

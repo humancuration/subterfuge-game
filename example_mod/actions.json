@@ -1,0 +1,19 @@
+{
+  "actions": [
+    {
+      "id": "research_eco_tech",
+      "name": "Research Eco Technology",
+      "description": "Research new environmental technologies",
+      "requirements": {
+        "resources": {
+          "research_points": 100
+        },
+        "buildings": ["research_lab"]
+      },
+      "effects": {
+        "technology_level": 5,
+        "unlock_buildings": ["eco_generator"]
+      }
+    }
+  ]
+} 

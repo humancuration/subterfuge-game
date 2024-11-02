@@ -1,0 +1,23 @@
+{
+  "systems": [
+    {
+      "id": "pollution_system",
+      "name": "Environmental Impact System",
+      "update_frequency": "per_turn",
+      "tracked_variables": [
+        "pollution_level",
+        "environmental_health",
+        "eco_reputation"
+      ],
+      "events": [
+        {
+          "id": "pollution_warning",
+          "trigger": {
+            "condition": "pollution_level > 75",
+            "frequency": "once"
+          }
+        }
+      ]
+    }
+  ]
+} 

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<buildings>
+    <!-- Eco-friendly power generation -->
+    <building id="eco_generator">
+        <name>Eco Power Generator</name>
+        <description>
+            A sustainable power generator that produces clean energy.
+            Converts renewable resources into power with minimal environmental impact.
+        </description>
+        <cost>
+            <resource type="wood" amount="50"/>
+            <resource type="metal" amount="30"/>
+        </cost>
+        <effects>
+            <stat name="power_output" value="10"/>
+            <stat name="environmental_impact" value="-5"/>
+        </effects>
+    </building>
+</buildings> 

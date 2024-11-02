@@ -1,0 +1,30 @@
+{
+  "buildings": [
+    {
+      "id": "eco_generator",
+      "name": "Eco Power Generator",
+      "description": "A sustainable power generator that produces clean energy",
+      "cost": {
+        "wood": 50,
+        "metal": 30
+      },
+      "space_required": 4,
+      "effects": {
+        "power_output": 10,
+        "environmental_impact": -5
+      },
+      "upgrades": [
+        {
+          "level": 2,
+          "cost": {
+            "metal": 40
+          },
+          "effects": {
+            "power_output": 15,
+            "environmental_impact": -7
+          }
+        }
+      ]
+    }
+  ]
+} 
