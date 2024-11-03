@@ -1,9 +1,12 @@
 #pragma once
-#include "ClimateSystem.hpp"
+#include <godot_cpp/classes/node3d.hpp>
+#include <godot_cpp/core/class_db.hpp>
 #include "../Core/JobSystem.hpp"
 #include <vector>
 
-class AtmosphereSystem {
+class AtmosphereSystem : public godot::Node3D {
+    GDCLASS(AtmosphereSystem, Node3D)
+
 private:
     struct AirCell {
         alignas(16) float pollution_level{0.0f};
@@ -40,7 +43,26 @@ private:
     static constexpr float POLLUTION_DISPERSION_RATE = 0.1f;
     static constexpr float HEAT_DISSIPATION_RATE = 0.05f;
 
+protected:
+    static void _bind_methods();
+
 public:
+    AtmosphereSystem();
+    
+    void update_atmosphere(float delta);
+    float get_pollution_level() const;
+    float get_temperature() const;
+    float get_humidity() const;
+    float get_co2_level() const;
+    
+    // Property setters/getters
+    void set_pollution_dispersion_rate(float rate) { POLLUTION_DISPERSION_RATE = rate; }
+    float get_pollution_dispersion_rate() const { return POLLUTION_DISPERSION_RATE; }
+    
+    void set_heat_dissipation_rate(float rate) { HEAT_DISSIPATION_RATE = rate; }
+    float get_heat_dissipation_rate() const { return HEAT_DISSIPATION_RATE; }
+
+    // Original functionality restored
     void update_atmosphere_simd(float delta_time) {
         const size_t grid_size = atmosphere_grid.size() * atmosphere_grid[0].size();
         
@@ -83,6 +105,27 @@ private:
         // Simulate wind effects on pollution and temperature distribution
         for (const auto& pattern : wind_patterns) {
             apply_wind_effect_simd(pattern, delta_time);
+        }
+    }
+
+    void apply_wind_effect_simd(const WindPattern& pattern, float delta_time) {
+        // Apply wind effects using SIMD operations
+        const size_t grid_size = atmosphere_grid.size() * atmosphere_grid[0].size();
+        
+        for (size_t i = 0; i < grid_size; i += 8) {
+            __m256 wind_x = _mm256_load_ps(&wind_velocities_x[i]);
+            __m256 wind_y = _mm256_load_ps(&wind_velocities_y[i]);
+            
+            // Apply wind pattern influence
+            __m256 pattern_strength = _mm256_set1_ps(pattern.strength * delta_time);
+            __m256 pattern_x = _mm256_set1_ps(pattern.direction.x);
+            __m256 pattern_y = _mm256_set1_ps(pattern.direction.y);
+            
+            wind_x = _mm256_add_ps(wind_x, _mm256_mul_ps(pattern_x, pattern_strength));
+            wind_y = _mm256_add_ps(wind_y, _mm256_mul_ps(pattern_y, pattern_strength));
+            
+            _mm256_store_ps(&wind_velocities_x[i], wind_x);
+            _mm256_store_ps(&wind_velocities_y[i], wind_y);
         }
     }
 }; 

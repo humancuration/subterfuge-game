@@ -1,9 +1,12 @@
 #pragma once
-#include "EnvironmentalInfluenceSystem.hpp"
+#include <godot_cpp/classes/node3d.hpp>
+#include <godot_cpp/core/class_db.hpp>
 #include "../Core/JobSystem.hpp"
 #include <unordered_map>
 
-class ClimateSystem {
+class ClimateSystem : public godot::Node3D {
+    GDCLASS(ClimateSystem, Node3D)
+
 public:
     // Our "Spice-like" resource
     struct NeoFuel {
@@ -29,7 +32,7 @@ public:
         float decay_rate;
         bool is_permanent;
         
-        std::function<void(Waypoint*, float)> hazard_effect;
+        std::function<void(class Waypoint*, float)> hazard_effect;
     };
 
     struct ClimateCell {
@@ -85,12 +88,37 @@ private:
     std::vector<ExtractionSite> neofuel_sites;
     
     // Constants for simulation
-    static constexpr float NEOFUEL_ACCIDENT_BASE_CHANCE = 0.001f;  // 0.1% per update
-    static constexpr float NEOFUEL_MUTATION_CHANCE = 0.005f;      // 0.5% chance of crystallization
+    static constexpr float NEOFUEL_ACCIDENT_BASE_CHANCE = 0.001f;
+    static constexpr float NEOFUEL_MUTATION_CHANCE = 0.005f;
     static constexpr float WATER_CONTAMINATION_RADIUS = 100.0f;
     static constexpr float RADIATION_SPREAD_RATE = 0.1f;
 
+protected:
+    static void _bind_methods();
+
 public:
+    ClimateSystem();
+    
+    void update_climate(float delta);
+    void simulate_resource_extraction(float delta);
+    
+    // Getters
+    float get_temperature(const godot::Vector2& position) const;
+    float get_humidity(const godot::Vector2& position) const;
+    float get_air_quality(const godot::Vector2& position) const;
+    float get_radiation_level(const godot::Vector2& position) const;
+    
+    // Hazard management
+    void add_hazard(const EnvironmentalHazard& hazard);
+    void remove_hazard(const godot::Vector2& position, float radius);
+    Array get_active_hazards() const;
+    
+    // Resource management
+    void add_extraction_site(const godot::Vector2& position, float rate);
+    void remove_extraction_site(const godot::Vector2& position);
+    float get_resource_concentration(const godot::Vector2& position) const;
+
+    // Original functionality restored
     void update_climate_simd(float delta_time) {
         const size_t grid_size = climate_grid.size() * climate_grid[0].size();
         
@@ -109,23 +137,22 @@ public:
         process_hazard_effects();
     }
 
-    void simulate_resource_extraction(float delta_time) {
-        for (auto& site : neofuel_sites) {
-            // Calculate accident probability based on extraction rate and total extracted
-            float accident_chance = NEOFUEL_ACCIDENT_BASE_CHANCE * 
-                (1.0f + site.extraction_rate / 100.0f) *
-                (1.0f + site.total_extracted / 10000.0f);
+private:
+    void update_climate_batch_simd(size_t start_idx, size_t count, float delta_time) {
+        for (size_t i = 0; i < count; i += 8) {
+            __m256 temps = _mm256_load_ps(&temperatures[start_idx + i]);
+            __m256 pollution = _mm256_load_ps(&pollution_levels[start_idx + i]);
+            __m256 radiation = _mm256_load_ps(&radiation_values[start_idx + i]);
             
-            if (random_chance() < accident_chance) {
-                create_industrial_accident(site);
-            }
-
-            // Update environmental impact
-            update_extraction_impact(site, delta_time);
+            // Process climate changes using SIMD
+            process_climate_changes_simd(temps, pollution, radiation, delta_time);
+            
+            _mm256_store_ps(&temperatures[start_idx + i], temps);
+            _mm256_store_ps(&pollution_levels[start_idx + i], pollution);
+            _mm256_store_ps(&radiation_values[start_idx + i], radiation);
         }
     }
 
-private:
     void create_industrial_accident(const ExtractionSite& site) {
         EnvironmentalHazard hazard{
             site.position,
@@ -153,7 +180,7 @@ private:
         contaminate_water_supply(site.position, WATER_CONTAMINATION_RADIUS);
     }
 
-    void update_extraction_impact(ExtractionSite& site, float delta_time) {
+        void update_extraction_impact(ExtractionSite& site, float delta_time) {
         // Calculate environmental degradation
         float impact_radius = 20.0f + site.total_extracted / 1000.0f;
         float impact_intensity = site.extraction_rate * delta_time;
@@ -185,16 +212,34 @@ private:
             }
         };
         
-        site.local_hazards.push_back(crystal);
+        site.local_hazards.push_back(crystal)
+
+    void process_hazard_effects() {
+        for (auto& hazard : global_hazards) {
+            if (!hazard.is_permanent) {
+                hazard.intensity *= (1.0f - hazard.decay_rate);
+            }
+            
+            // Apply hazard effects to nearby waypoints
+            auto affected_waypoints = get_waypoints_in_radius(hazard.position, hazard.radius);
+            for (auto* waypoint : affected_waypoints) {
+                hazard.hazard_effect(waypoint, hazard.intensity);
+            }
+        }
     }
 
     void contaminate_water_supply(const godot::Vector2& position, float radius) {
         // Implement water table contamination that spreads over time
-        // This could affect multiple climate cells and persist
-    }
-
-    void process_hazard_effects() {
-        // Process both global and local hazards
-        // Use spatial partitioning to efficiently find affected waypoints
+        // This affects multiple climate cells and persists
+        for (auto& row : climate_grid) {
+            for (auto& cell : row) {
+                float distance = position.distance_to(godot::Vector2(cell.position));
+                if (distance < radius) {
+                    float contamination = 1.0f - (distance / radius);
+                    cell.water_pollution += contamination;
+                    cell.ground_water_quality *= (1.0f - contamination * 0.5f);
+                }
+            }
+        }
     }
 }; 
